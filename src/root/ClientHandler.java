@@ -1,13 +1,13 @@
 package root;
 
 import root.GUI.AuthWindow;
+import root.GUI.ChatWindow;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Objects;
-import java.util.concurrent.ExecutionException;
 
 public class ClientHandler {
     private AuthService.Record record;
@@ -16,6 +16,10 @@ public class ClientHandler {
     private DataInputStream in;
     private DataOutputStream out;
 
+    public DataOutputStream getOut() {
+        return out;
+    }
+
     public ClientHandler(Server server, Socket socket) {
         try {
             this.server = server;
@@ -23,23 +27,21 @@ public class ClientHandler {
             in = new DataInputStream(socket.getInputStream());
             out = new DataOutputStream(socket.getOutputStream());
 
-            /*
-             * Поток обработки клиента запускается через ExecutorService
-             */
-
-            Server.executorService.execute(new Runnable() {
+            new Thread(new Runnable() {
                 @Override
                 public void run() {
                     try {
                         doAuth();
                         readMessage();
-                    } catch (IOException | ExecutionException | InterruptedException e) {
+                    } catch (IOException e) {
                         e.printStackTrace();
                     } finally {
                         closeConnection();
                     }
                 }
-            });
+            })
+                    .start();
+
         } catch (IOException e) {
             throw new RuntimeException("Client handler was not created");
         }
@@ -49,14 +51,17 @@ public class ClientHandler {
         return record;
     }
 
-    public void doAuth() throws IOException, ExecutionException, InterruptedException {
-        /*
-         * Авторизация происходит теперь через ExecutorService.submit()
-         */
-        record = Server.executorService.submit(new AuthWindow(server)).get();
+    public void setRecord(AuthService.Record record) {
+        this.record = record;
+    }
+
+    public void doAuth() throws IOException {
+        AuthWindow authorization = new AuthWindow(server, this);
+        while (authorization.isActive()) ;
+//        record = authorization.getPossibleRecord();
         server.subscribe(this);
         server.broadcastMessage(String.format("[Сервер]: Клиент %s подключился", record.getName()));
-        server.broadcastMessage(String.format("/userOnline %s><%s", record.getName(), record.getAvatar()));
+        server.broadcastMessage(String.format("/userOnline %s><%s", record.getName(),record.getAvatar()));
         out.writeUTF("/authok");
         out.writeUTF("/name " + record.getName());
         out.writeUTF("/logs%" + getLogs());
@@ -87,7 +92,7 @@ public class ClientHandler {
         while (true) {
             String message = in.readUTF();
             if (message.contains("/end")) return;
-            String taker = getAddressee(message);
+            String taker = getAdressee(message);
             message = formMessage(message);
             if (taker.equals("Общий чат")) {
                 server.broadcastMessage(message, this);
@@ -97,7 +102,7 @@ public class ClientHandler {
         }
     }
 
-    public String getAddressee(String message) {
+    public String getAdressee(String message) {
         StringBuilder txt = new StringBuilder(message);
         txt.setLength(txt.indexOf("/addr"));
         txt.deleteCharAt(0);

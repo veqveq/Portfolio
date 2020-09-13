@@ -3,7 +3,7 @@ package root;
 import java.util.Set;
 
 public class BasicAuthService implements AuthService {
-    private final DBHandler records = new DBHandler();
+    private final DataBaseHandler records = new DataBaseHandler();
 
     @Override
     public Record findRecord(String login, String password) {

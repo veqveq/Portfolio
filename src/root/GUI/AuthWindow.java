@@ -8,18 +8,19 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.concurrent.Callable;
 
-public class AuthWindow extends JFrame implements Callable<AuthService.Record> {        //Окно авторизации реализует интерфейс Callable
+public class AuthWindow extends JFrame {
     private JTextField login = new JTextField();
     private JPasswordField password = new JPasswordField();
     private JLabel message = new JLabel(" ");
     private Server server;
     private AuthService.Record possibleRecord;
     private boolean connected;
+    private ClientHandler ch;
 
-    public AuthWindow(Server server) {
+    public AuthWindow(Server server, ClientHandler ch) {
         this.server = server;
+        this.ch = ch;
         setTitle("Авторизация");
         setBounds(350, 450, 350, 170);
         setResizable(false);
@@ -84,6 +85,7 @@ public class AuthWindow extends JFrame implements Callable<AuthService.Record> {
                 setMessage("Вы уже в чате!");
             } else {
                 setMessage(String.format("Авторизация выполнена! Привет, %s", possibleRecord.getName()));
+                ch.setRecord(possibleRecord);
                 connected = true;
             }
         } else {
@@ -97,15 +99,9 @@ public class AuthWindow extends JFrame implements Callable<AuthService.Record> {
         password.grabFocus();
     }
 
-    /*
-     * Переопределение метода Callable
-     */
-
-    @Override
-    public AuthService.Record call() throws Exception {
+    public AuthService.Record getPossibleRecord() {
         return possibleRecord;
     }
-
 
     private class textFieldListener implements ActionListener {
         private String name;
