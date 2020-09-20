@@ -8,8 +8,6 @@ import java.util.Set;
 
 public class DBHandler {
 
-//    private Connection connection;
-
     public DBHandler() {
         try {
             Class.forName("com.mysql.jdbc.Driver");
@@ -81,23 +79,6 @@ public class DBHandler {
             throwables.printStackTrace();
         }
     }
-
-//    private void openConnection() {
-//        try {
-//            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/webchat?serverTimezone=Europe/Moscow", "root", "0000");
-//        } catch (SQLException throwables) {
-//            throwables.printStackTrace();
-//            throw new RuntimeException("Driver Registration error");
-//        }
-//    }
-
-//    private void closeConnection() {
-//        try {
-//            connection.close();
-//        } catch (SQLException throwables) {
-//            throwables.printStackTrace();
-//        }
-//    }
 
     private Set<AuthService.Record> getDataBase(){
         Connection connection = DBConnector.getConnection();

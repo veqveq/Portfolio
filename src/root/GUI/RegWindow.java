@@ -7,7 +7,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Set;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.*;
 
 public class RegWindow extends JFrame {
 
@@ -18,12 +20,58 @@ public class RegWindow extends JFrame {
     private JPasswordField confirmPassword = new JPasswordField();
     private JLabel message = new JLabel(" ");
     private AuthWindow authWindow;
-    private String avatar = "avatars/pic1.png";
+    private String avatarPath = "src\\root\\GUI\\avatars\\pic1.png";
+    private JLabel avatarImage = new JLabel();
+    private Color avatarIsActivate = new Color(255, 255, 255);
+    private Color avatarIsDeactivate = new Color(147, 186, 203);
+    private RegWindow thisWindow;
 
+    protected void setAvatarIsActive() {
+        avatarImage.setBorder(BorderFactory.createLineBorder(avatarIsActivate, 4));
+    }
+
+    protected void setAvatarIsDeactive() {
+        avatarImage.setBorder(BorderFactory.createLineBorder(avatarIsDeactivate, 4));
+    }
 
     public RegWindow(Server server, AuthWindow authWindow) {
+        thisWindow = this;
         this.server = server;
-        this.authWindow=authWindow;
+        this.authWindow = authWindow;
+        avatarImage.setHorizontalAlignment(JLabel.CENTER);
+        avatarImage.setIcon(new ImageIcon(avatarPath));
+        setAvatarIsDeactive();
+        avatarImage.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                setAvatarIsActive();
+                ChangeAvatarWindow changeAvatar = new ChangeAvatarWindow(thisWindow);
+                while (changeAvatar.isActive()) {
+                }
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+            }
+        });
+
+        avatarImage.setPreferredSize(new Dimension(50, 100));
         message.setHorizontalAlignment(SwingConstants.CENTER);
         authWindow.setVisible(false);
         setTitle("Регистрация нового пользователя");
@@ -32,8 +80,8 @@ public class RegWindow extends JFrame {
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
         setLayout(new BorderLayout());
-        JPanel text = new JPanel(new GridLayout(4,1));
-        JPanel fields = new JPanel(new GridLayout(4,1));
+        JPanel text = new JPanel(new GridLayout(4, 1));
+        JPanel fields = new JPanel(new GridLayout(4, 1));
 
         name.addActionListener(new textFieldListener("name"));
         login.addActionListener(new textFieldListener("login"));
@@ -59,9 +107,10 @@ public class RegWindow extends JFrame {
         });
 
         add(message, BorderLayout.NORTH);
-        add(text,BorderLayout.WEST);
-        add(fields,BorderLayout.CENTER);
+        add(text, BorderLayout.WEST);
+        add(fields, BorderLayout.CENTER);
         add(enter, BorderLayout.SOUTH);
+        add(avatarImage, BorderLayout.EAST);
         message.setForeground(Color.RED);
         message.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -75,12 +124,7 @@ public class RegWindow extends JFrame {
                 setMessage(String.format("Заполните все поля!", name.getText()));
                 return;
             }
-            if (r.getName().equals(name.getText())) {
-                setMessage(String.format("Пользователь с ником %s существует! Измените ник", name.getText()));
-                name.setText(null);
-                return;
-            }
-            if (r.getLogin().equals(login.getText()) && comparePass(r.getPassword(),password.getPassword())) {
+            if (r.getLogin().equals(login.getText())) {
                 setMessage("Учётная запись уже зарегистрирована! Пожалуйста, авторизуйтесь!");
                 login.setText(null);
                 password.setText(null);
@@ -88,14 +132,14 @@ public class RegWindow extends JFrame {
                 return;
             }
         }
-        if (!comparePass(password.getPassword(),confirmPassword.getPassword())) {
+        if (!comparePass(password.getPassword(), confirmPassword.getPassword())) {
             setMessage(String.format("Пароли не совпадают!", name.getText()));
             confirmPassword.setText(null);
             return;
         }
-        server.getAuthService().setRecord(name.getText(), login.getText(), password.getText());
-        server.broadcastMessage(String.format("/userReg %s><%s",name.getText(),avatar));
-        server.broadcastMessage(String.format("[Сервер]: Клиент %s зарегистрировался",name.getText()));
+        server.getAuthService().setRecord(name.getText(), login.getText(), password.getText(),avatarPath);
+        server.broadcastMessage(String.format("/userReg %s><%s", name.getText(), avatarPath));
+        server.broadcastMessage(String.format("[Сервер]: Клиент %s зарегистрировался", name.getText()));
         authWindow.setLogin(login.getText());
         authWindow.setMessage("Учётная запись создана!");
         dispose();
@@ -140,22 +184,27 @@ public class RegWindow extends JFrame {
         }
     }
 
-    private boolean comparePass(char[]pass1,char[]pass2){
-        if (pass1.length == pass2.length){
+    public void setAvatarImage(String avatarPath) {
+        this.avatarPath = avatarPath;
+        this.avatarImage.setIcon(new ImageIcon(this.avatarPath));
+    }
+
+    private boolean comparePass(char[] pass1, char[] pass2) {
+        if (pass1.length == pass2.length) {
             for (int i = 0; i < pass1.length; i++) {
-                if (pass1[i]!=pass2[i]) return false;
+                if (pass1[i] != pass2[i]) return false;
             }
-        }else return false;
+        } else return false;
         return true;
     }
 
-    private boolean comparePass(String pass,char[]pass2){
-        char[]pass1 = pass.toCharArray();
-        if (pass1.length == pass2.length){
+    private boolean comparePass(String pass, char[] pass2) {
+        char[] pass1 = pass.toCharArray();
+        if (pass1.length == pass2.length) {
             for (int i = 0; i < pass1.length; i++) {
-                if (pass1[i]!=pass2[i]) return false;
+                if (pass1[i] != pass2[i]) return false;
             }
-        }else return false;
+        } else return false;
         return true;
     }
 

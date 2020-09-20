@@ -1,14 +1,17 @@
 package root;
 
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Server {
-    public static final int PORT = 8082;
+    public static final int PORT = 8083;
+    public static final ExecutorService executorService = Executors.newFixedThreadPool(3);
+
     private BasicAuthService authService;
     private Set<ClientHandler> clientHandlers;
 
@@ -31,6 +34,7 @@ public class Server {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
     }
 
     public AuthService getAuthService() {

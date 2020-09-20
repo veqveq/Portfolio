@@ -3,7 +3,7 @@ package root;
 import java.util.Set;
 
 public class BasicAuthService implements AuthService {
-    private final DataBaseHandler records = new DataBaseHandler();
+    private final DBHandler records = new DBHandler();
 
     @Override
     public Record findRecord(String login, String password) {
@@ -13,8 +13,8 @@ public class BasicAuthService implements AuthService {
     }
 
     @Override
-    public void setRecord(String name,String login,String password){
-        records.setUser(name,login,password,"avatars/pic5.png");
+    public void setRecord(String name,String login,String password, String avatar){
+        records.setUser(name,login,password,avatar);
     }
 
     @Override

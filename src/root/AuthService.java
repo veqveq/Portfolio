@@ -6,7 +6,7 @@ import java.util.Set;
 public interface AuthService {
     Record findRecord(String login, String password);
     Set<Record> getRecords();
-    void setRecord(String name,String login,String password);
+    void setRecord(String name,String login,String password, String avatar);
 
     class Record {
         private long id;

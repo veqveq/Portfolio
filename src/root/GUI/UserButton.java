@@ -16,7 +16,7 @@ public class UserButton extends JLabel {
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
 
-        userName.setIcon(new ImageIcon(ChatWindow.class.getResource(avatar)));
+        userName.setIcon(new ImageIcon(avatar));
         userName.setText(name);
         gbc.anchor = GridBagConstraints.WEST;
         gbc.weightx = 1;
@@ -30,9 +30,7 @@ public class UserButton extends JLabel {
         addMouseListener(new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
-//                if (isEnabled()) {
                 chatWindow.setChatTitle(name);
-//                }
             }
 
             @Override
@@ -47,24 +45,20 @@ public class UserButton extends JLabel {
 
             @Override
             public void mouseEntered(MouseEvent e) {
-//                if (isEnabled()) {
                 setOpaque(true);
                 userName.setFont(new Font("Calibri", Font.BOLD, 16));
                 userName.setForeground(new Color(0x4A39AA));
                 userName.setBackground(new Color(255, 255, 255, 255));
                 setBackground(new Color(255, 255, 255, 255));
-//                }
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
-//                if (isEnabled()) {
                 userName.setFont(new Font("Calibri", Font.BOLD, 14));
                 userName.setForeground(new Color(0, 0, 0));
                 userName.setBackground(new Color(255, 255, 255, 0));
                 setBackground(new Color(255, 255, 255, 0));
                 setOpaque(false);
-//                }
             }
         });
     }
